@@ -55,13 +55,16 @@
       max-width: 90vw;
       box-sizing: border-box;
       font-size: 0.64em;
-      line-height: 1.2; /* 折り返しで被らないように少し広め */
+      line-height: 1.6;  /* 行間を広くして被らないように */
       padding: 6px;
       margin: 10px auto;
       background: #fff;
       border-radius: 5px;
       word-wrap: break-word;
       overflow-x: auto;
+    }
+    .other-unit {
+      margin-top: 6px; /* 他部隊の各行に余白 */
     }
   </style>
 </head>
@@ -76,14 +79,8 @@
   <label>槍兵 Lv10
     <input type="number" id="spear10" value="1000">
   </label>
-  <label>槍兵 Lv9
-    <input type="number" id="spear9" value="0">
-  </label>
   <label>弓兵 Lv10
     <input type="number" id="archer10" value="1000">
-  </label>
-  <label>弓兵 Lv9
-    <input type="number" id="archer9" value="0">
   </label>
 
   <button onclick="calc()">計算する</button>
@@ -94,22 +91,16 @@
     function calc() {
       const capacity = parseInt(document.getElementById("capacity").value);
       let spear10 = parseInt(document.getElementById("spear10").value);
-      let spear9  = parseInt(document.getElementById("spear9").value);
       let archer10 = parseInt(document.getElementById("archer10").value);
-      let archer9  = parseInt(document.getElementById("archer9").value);
 
       // 自分の部隊
       const selfSpear = Math.floor(capacity * 0.3);
       const selfArcher = Math.floor(capacity * 0.5);
       const selfShield = capacity - selfSpear - selfArcher;
 
-      // 自分の部隊はLv10のみ
-      let usedSpear10 = Math.min(spear10, selfSpear);
-      let usedArcher10 = Math.min(archer10, selfArcher);
-
       // 他部隊用残り
-      let remainSpear = (spear10 - usedSpear10) + spear9;
-      let remainArcher = (archer10 - usedArcher10) + archer9;
+      let remainSpear = spear10 - selfSpear;
+      let remainArcher = archer10 - selfArcher;
 
       function distribute(divisions) {
         const perCapacity = capacity;
@@ -126,23 +117,15 @@
 
       html += `<h2>他部隊</h2>`;
       if (dist6.perShield >= 0) {
-        html += `<b>6部隊編成</b><br>`;
-        html += `1部隊あたり → 盾兵: ${dist6.perShield}, 槍兵: ${dist6.perSpear}`;
-        if (spear9>0) html += ` (Lv9:${spear9})`;
-        html += `, 弓兵: ${dist6.perArcher}`;
-        if (archer9>0) html += ` (Lv9:${archer9})`;
-        html += `<br>`;
+        html += `<div class="other-unit"><b>6部隊編成</b></div>`;
+        html += `<div class="other-unit">1部隊あたり → 盾兵: ${dist6.perShield}, 槍兵: ${dist6.perSpear}, 弓兵: ${dist6.perArcher}</div>`;
       } else {
-        html += `<b>6部隊編成は不足 → 5部隊で再計算</b><br>`;
+        html += `<div class="other-unit"><b>6部隊編成は不足 → 5部隊で再計算</b></div>`;
         let dist5 = distribute(5);
         if (dist5.perShield >= 0) {
-          html += `1部隊あたり → 盾兵: ${dist5.perShield}, 槍兵: ${dist5.perSpear}`;
-          if (spear9>0) html += ` (Lv9:${spear9})`;
-          html += `, 弓兵: ${dist5.perArcher}`;
-          if (archer9>0) html += ` (Lv9:${archer9})`;
-          html += `<br>`;
+          html += `<div class="other-unit">1部隊あたり → 盾兵: ${dist5.perShield}, 槍兵: ${dist5.perSpear}, 弓兵: ${dist5.perArcher}</div>`;
         } else {
-          html += "盾兵が不足しており、5部隊でも編成できません。";
+          html += `<div class="other-unit">盾兵が不足しており、5部隊でも編成できません。</div>`;
         }
       }
 
