@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>部隊分配シミュレーター</title>
+  <title>部隊シミュレーター & 兵士回復</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
@@ -11,94 +11,113 @@
       background: #f2f2f2;
       font-size: 0.5em;
     }
-    h1 {
-      font-size: 1.1em;
-      margin-bottom: 10px;
-      text-align: center;
-    }
-    h2 {
-      font-size: 0.85em;
-      margin-top: 10px;
-    }
-    label {
-      display: block;
-      margin-top: 8px;
-      font-size: 0.75em;
-    }
+    h1 { font-size: 1.1em; text-align: center; margin-bottom: 10px; }
+    h2 { font-size: 0.85em; margin-top: 10px; }
+    label { display:block; margin-top:8px; font-size:0.75em; }
     input {
-      width: 70%;
-      font-size: 0.72em;
-      padding: 5px;
-      margin: 3px auto;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      display: block;
-      box-sizing: border-box;
+      width:70%;
+      font-size:0.72em;
+      padding:5px;
+      margin:3px auto;
+      border-radius:4px;
+      border:1px solid #ccc;
+      display:block;
+      box-sizing:border-box;
     }
     button {
-      width: 70%;
-      margin: 8px auto;
-      padding: 7px;
-      font-size: 0.72em;
-      border-radius: 5px;
-      background: #4CAF50;
-      color: white;
-      border: none;
-      cursor: pointer;
-      display: block;
+      width:70%;
+      margin:8px auto;
+      padding:7px;
+      font-size:0.72em;
+      border-radius:5px;
+      background:#4CAF50;
+      color:white;
+      border:none;
+      cursor:pointer;
+      display:block;
     }
-    button:hover {
-      background: #45a049;
+    button:hover { background:#45a049; }
+    #result, #recoveryResult {
+      width:200%;
+      max-width:90vw;
+      box-sizing:border-box;
+      font-size:0.64em;
+      line-height:1.6;
+      padding:6px;
+      margin:10px auto;
+      background:#fff;
+      border-radius:5px;
+      word-wrap:break-word;
+      overflow-x:auto;
     }
-    #result {
-      width: 200%;
-      max-width: 90vw;
-      box-sizing: border-box;
-      font-size: 0.64em;
-      line-height: 1.6;  /* 行間を広くして被らないように */
-      padding: 6px;
-      margin: 10px auto;
-      background: #fff;
-      border-radius: 5px;
-      word-wrap: break-word;
-      overflow-x: auto;
+    .other-unit { margin-top:6px; }
+    .tabs { display:flex; margin-bottom:10px; }
+    .tab-btn {
+      flex:1;
+      padding:6px;
+      font-size:0.7em;
+      cursor:pointer;
+      background:#ddd;
+      border:1px solid #ccc;
     }
-    .other-unit {
-      margin-top: 6px; /* 他部隊の各行に余白 */
-    }
+    .tab-btn:hover { background:#ccc; }
   </style>
 </head>
 <body>
-  <h1>部隊分配シミュレーター</h1>
+  <h1>部隊シミュレーター & 兵士回復</h1>
 
-  <label>① 自分の部隊の容量
-    <input type="number" id="capacity" value="1000">
-  </label>
+  <div class="tabs">
+    <button class="tab-btn" onclick="showTab('tab1')">部隊分配</button>
+    <button class="tab-btn" onclick="showTab('tab2')">兵士回復</button>
+  </div>
 
-  <h2>② 保有人数</h2>
-  <label>槍兵 Lv10
-    <input type="number" id="spear10" value="1000">
-  </label>
-  <label>弓兵 Lv10
-    <input type="number" id="archer10" value="1000">
-  </label>
+  <!-- 部隊分配タブ -->
+  <div id="tab1" class="tab-content">
+    <label>① 自分の部隊の容量
+      <input type="number" id="capacity" value="1000">
+    </label>
 
-  <button onclick="calc()">計算する</button>
+    <h2>② 保有人数</h2>
+    <label>槍兵 Lv10
+      <input type="number" id="spear10" value="1000">
+    </label>
+    <label>弓兵 Lv10
+      <input type="number" id="archer10" value="1000">
+    </label>
 
-  <div id="result"></div>
+    <button onclick="calc()">計算する</button>
+    <div id="result"></div>
+  </div>
+
+  <!-- 兵士回復タブ -->
+  <div id="tab2" class="tab-content" style="display:none;">
+    <label>自動支援人数(人)
+      <input type="number" id="supportNum" value="1000">
+    </label>
+    <label>100人回復にかかる時間(hh:mm:ss)
+      <input type="text" id="recoveryTime" placeholder="00:04:17" value="00:04:17">
+    </label>
+    <button onclick="calcRecovery()">計算する</button>
+    <div id="recoveryResult"></div>
+  </div>
 
   <script>
+    // タブ切り替え
+    function showTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(t => t.style.display='none');
+      document.getElementById(tabId).style.display='block';
+    }
+
+    // 部隊分配計算
     function calc() {
       const capacity = parseInt(document.getElementById("capacity").value);
       let spear10 = parseInt(document.getElementById("spear10").value);
       let archer10 = parseInt(document.getElementById("archer10").value);
 
-      // 自分の部隊
       const selfSpear = Math.floor(capacity * 0.3);
       const selfArcher = Math.floor(capacity * 0.5);
       const selfShield = capacity - selfSpear - selfArcher;
 
-      // 他部隊用残り
       let remainSpear = spear10 - selfSpear;
       let remainArcher = archer10 - selfArcher;
 
@@ -130,6 +149,25 @@
       }
 
       document.getElementById("result").innerHTML = html;
+    }
+
+    // 兵士回復計算
+    function calcRecovery() {
+      const autoSupport = parseInt(document.getElementById('supportNum').value);
+      const timeStr = document.getElementById('recoveryTime').value;
+      const parts = timeStr.split(':').map(Number);
+      const secondsPer100 = parts[0]*3600 + parts[1]*60 + parts[2];
+
+      const totalSeconds = autoSupport * secondsPer100 / 100;
+      const hours = Math.floor(totalSeconds/3600);
+      const minutes = Math.floor((totalSeconds%3600)/60);
+      const seconds = Math.floor(totalSeconds%60);
+
+      const maxRecovered = Math.floor(totalSeconds / secondsPer100 * 100);
+
+      document.getElementById('recoveryResult').innerHTML =
+        `合計時間: ${hours}h ${minutes}m ${seconds}s<br>` +
+        `最大回復兵士数: ${maxRecovered}人`;
     }
   </script>
 </body>
