@@ -51,16 +51,17 @@
       background: #45a049;
     }
     #result {
-      width: 70%;            /* 枠幅70% */
-      max-width: 100%;
+      width: 200%;         /* 内部幅2倍 */
+      max-width: 90vw;     /* 画面幅の90%以内に収める */
       box-sizing: border-box;
-      font-size: 0.64em;     /* 元1.28emの半分 */
-      line-height: 0.72;     /* 元1.44の半分 */
-      padding: 6px;          /* 元12pxの半分 */
+      font-size: 0.64em;   /* 文字サイズ半分 */
+      line-height: 0.72;
+      padding: 6px;
       margin: 10px auto;
       background: #fff;
       border-radius: 5px;
       word-wrap: break-word;
+      overflow-x: auto;    /* はみ出す場合は横スクロール */
     }
   </style>
 </head>
