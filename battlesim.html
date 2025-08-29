@@ -25,16 +25,18 @@
       font-size: 1.5em;
     }
     input {
-      width: 90%;
+      width: 95%;
       font-size: 1.8em;
       padding: 12px;
-      margin-top: 8px;
+      margin: 8px auto;
       border-radius: 8px;
       border: 1px solid #ccc;
+      display: block;
+      box-sizing: border-box;
     }
     button {
-      width: 100%;
-      margin-top: 25px;
+      width: 95%;
+      margin: 20px auto;
       padding: 18px;
       font-size: 1.8em;
       border-radius: 12px;
@@ -42,17 +44,21 @@
       color: white;
       border: none;
       cursor: pointer;
+      display: block;
     }
     button:hover {
       background: #45a049;
     }
     #result {
-      margin-top: 30px;
-      padding: 20px;
-      background: #ffffff;
-      border-radius: 10px;
+      max-width: 100%;
+      box-sizing: border-box;
       font-size: 1.6em;
       line-height: 1.8;
+      padding: 15px;
+      margin-top: 20px;
+      background: #fff;
+      border-radius: 10px;
+      word-wrap: break-word;
     }
   </style>
 </head>
