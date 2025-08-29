@@ -61,28 +61,29 @@
       border:1px solid #ccc;
     }
     .tab-btn:hover { background:#ccc; }
+    .active-tab { background:#bbb !important; }
   </style>
 </head>
 <body>
   <h1>部隊シミュレーター & 兵士回復</h1>
 
   <div class="tabs">
-    <button class="tab-btn" onclick="showTab('tab1')">部隊分配</button>
-    <button class="tab-btn" onclick="showTab('tab2')">兵士回復</button>
+    <button id="btn1" class="tab-btn active-tab" onclick="showTab('tab1')">部隊分配</button>
+    <button id="btn2" class="tab-btn" onclick="showTab('tab2')">兵士回復</button>
   </div>
 
   <!-- 部隊分配タブ -->
   <div id="tab1" class="tab-content">
     <label>① 自分の部隊の容量
-      <input type="number" id="capacity" value="1000">
+      <input type="number" id="capacity" value="150000">
     </label>
 
     <h2>② 保有人数</h2>
     <label>槍兵 Lv10
-      <input type="number" id="spear10" value="1000">
+      <input type="number" id="spear10" value="300000">
     </label>
     <label>弓兵 Lv10
-      <input type="number" id="archer10" value="1000">
+      <input type="number" id="archer10" value="400000">
     </label>
 
     <button onclick="calc()">計算する</button>
@@ -92,10 +93,10 @@
   <!-- 兵士回復タブ -->
   <div id="tab2" class="tab-content" style="display:none;">
     <label>自動支援人数(人)
-      <input type="number" id="supportNum" value="1000">
+      <input type="number" id="supportNum" value="10">
     </label>
     <label>100人回復にかかる時間(hh:mm:ss)
-      <input type="text" id="recoveryTime" placeholder="00:04:17" value="00:04:17">
+      <input type="text" id="recoveryTime" placeholder="00:04:00" value="00:04:00">
     </label>
     <button onclick="calcRecovery()">計算する</button>
     <div id="recoveryResult"></div>
@@ -106,6 +107,9 @@
     function showTab(tabId) {
       document.querySelectorAll('.tab-content').forEach(t => t.style.display='none');
       document.getElementById(tabId).style.display='block';
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active-tab'));
+      if(tabId==='tab1') document.getElementById('btn1').classList.add('active-tab');
+      else document.getElementById('btn2').classList.add('active-tab');
     }
 
     // 部隊分配計算
@@ -151,22 +155,23 @@
       document.getElementById("result").innerHTML = html;
     }
 
-    // 兵士回復計算
+    // 兵士回復計算（修正版）
     function calcRecovery() {
       const autoSupport = parseInt(document.getElementById('supportNum').value);
       const timeStr = document.getElementById('recoveryTime').value;
       const parts = timeStr.split(':').map(Number);
-      const secondsPer100 = parts[0]*3600 + parts[1]*60 + parts[2];
+      const timePer100 = parts[0]*3600 + parts[1]*60 + parts[2]; // 100人回復にかかる秒数
 
-      const totalSeconds = autoSupport * secondsPer100 / 100;
-      const hours = Math.floor(totalSeconds/3600);
-      const minutes = Math.floor((totalSeconds%3600)/60);
-      const seconds = Math.floor(totalSeconds%60);
+      const totalReduction = autoSupport * 257; // 1人あたり257秒短縮
+      const maxRecovered = Math.floor(totalReduction / timePer100 * 100); 
 
-      const maxRecovered = Math.floor(totalSeconds / secondsPer100 * 100);
+      // 合計時間表示（短縮秒数をhh:mm:ssに変換）
+      const hours = Math.floor(totalReduction/3600);
+      const minutes = Math.floor((totalReduction%3600)/60);
+      const seconds = Math.floor(totalReduction%60);
 
       document.getElementById('recoveryResult').innerHTML =
-        `合計時間: ${hours}h ${minutes}m ${seconds}s<br>` +
+        `合計短縮時間: ${hours}h ${minutes}m ${seconds}s<br>` +
         `最大回復兵士数: ${maxRecovered}人`;
     }
   </script>
